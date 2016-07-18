@@ -74,6 +74,7 @@ public class XMLTest
 		{
 			throw new IllegalStateException("Cannot iterate over tests if no assignment file has been loaded.");
 		}
+		
 		for (TestcaseType tc : exercise.getTestcases().getTestcase())
 		{
 			Sheet refSheet, testSheet;
@@ -177,15 +178,14 @@ public class XMLTest
 				for (InputRangeDouble ird : irds)
 				{
 					a = ird.expandRandomAssignment(ran, a);
-					
-					try
-					{
-						reportTest(curTest,et.runTest(a));
-					}
-					catch (Exception e)
-					{
-						reportError(e.getClass().getSimpleName()+" during "+curTest);
-					}
+				}
+				try
+				{
+					reportTest(curTest,et.runTest(a));
+				}
+				catch (Exception e)
+				{
+					reportError(e.getClass().getSimpleName()+" during "+curTest);
 				}
 			}
 		}

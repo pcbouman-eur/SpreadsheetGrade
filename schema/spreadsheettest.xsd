@@ -1,6 +1,12 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="assignment.xsd" 
 	xmlns="assignment.xsd" elementFormDefault="qualified">
 
+	<xs:simpleType name="collapseString">
+		<xs:restriction base="xs:string">
+			<xs:whiteSpace value="collapse" />
+		</xs:restriction>
+	</xs:simpleType>
+
 	<xs:complexType name="testcasesType">
 		<xs:sequence>
 			<xs:element name="testcase" type="testcaseType" maxOccurs="unbounded" />
@@ -39,6 +45,7 @@
 	
 	<xs:simpleType name="shortType">
     	<xs:restriction base="xs:string">
+    		<xs:whiteSpace value="collapse" />
       		<xs:pattern value="[a-zA-Z0-9]{1,16}"/>
     	</xs:restriction>
 	</xs:simpleType>
@@ -47,9 +54,9 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="shorttitle" type="shortType" />
-				<xs:element name="title" type="xs:string" />
-				<xs:element name="category" type="xs:string" />
-				<xs:element name="instructions" type="xs:string" />
+				<xs:element name="title" type="collapseString" />
+				<xs:element name="category" type="collapseString" />
+				<xs:element name="instructions" type="collapseString" />
 				<xs:element name="testcases" type="testcasesType" />
 			</xs:sequence>
 			<xs:attribute name="seed" type="xs:long" default="54321" />
