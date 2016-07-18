@@ -29,6 +29,16 @@ public class Range implements Iterable<CellReference>
 		}
 	}
 	
+	public int getNumberOfCells()
+	{
+		int minRow = Math.min(from.getRow(), to.getRow());
+		int maxRow = Math.max(from.getRow(), to.getRow());
+		int minCol = Math.min(from.getCol(), to.getCol());
+		int maxCol = Math.max(from.getCol(), to.getCol());
+		
+		return (maxRow-minRow)*(maxCol-minCol);
+	}
+	
 	public List<CellReference> getCells()
 	{
 		int minRow = Math.min(from.getRow(), to.getRow());

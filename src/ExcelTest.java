@@ -44,7 +44,7 @@ public class ExcelTest
 		{
 			for (CellReference cr : or)
 			{
-				System.out.println("comparing.. "+cr);
+				//System.out.println("comparing.. "+cr);
 				if (!compare(cr))
 				{
 					return false;
@@ -93,7 +93,7 @@ public class ExcelTest
 			}
 			else if (valType == Cell.CELL_TYPE_NUMERIC)
 			{
-				System.out.println(""+refVal.getNumberValue()+"  vs "+testVal.getNumberValue());
+				//System.out.println(""+refVal.getNumberValue()+"  vs "+testVal.getNumberValue());
 				return Math.abs(refVal.getNumberValue() - testVal.getNumberValue()) <= eps;
 			}
 			else if (valType == Cell.CELL_TYPE_STRING)

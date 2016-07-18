@@ -91,4 +91,13 @@ public class Assignment
 			next.assign(s);
 		}
 	}
+	
+	public void concat(Assignment a)
+	{
+		if (next == null)
+		{
+			next = a;
+		}
+		next.concat(a);
+	}
 }

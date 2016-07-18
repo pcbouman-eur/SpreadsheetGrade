@@ -1,0 +1,53 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="assignment.xsd" 
+	xmlns="assignment.xsd" elementFormDefault="qualified">
+
+	<xs:complexType name="testcasesType">
+		<xs:sequence>
+			<xs:element name="testcase" type="testcaseType" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="testcaseType">
+		<xs:sequence>
+			<xs:element name="description" type="xs:string" />
+			<xs:element name="input" type="inputType" maxOccurs="unbounded" />
+			<xs:element name="output" type="outputType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="inputType">
+		<xs:attribute name="range" type="xs:string" use="required" />
+		<xs:attribute name="lb" type="xs:double" use="required" />
+		<xs:attribute name="ub" type="xs:double" use="required" />
+		<xs:attribute name="precision" type="xs:double" default="0.01" />
+	</xs:complexType>
+	
+	<xs:complexType name="outputType">
+		<xs:attribute name="range" type="rangeType" use="required" />
+	</xs:complexType>
+	
+	<xs:simpleType name="rangeType">
+    	<xs:restriction base="xs:string">
+      		<xs:pattern value="[A-Z]+[0-9]+(:[A-Z]+[0-9]+)?"/>
+    	</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="shortType">
+    	<xs:restriction base="xs:string">
+      		<xs:pattern value="[a-zA-Z0-9]{1,16}"/>
+    	</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="exercise">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="shorttitle" type="shortType" />
+				<xs:element name="title" type="xs:string" />
+				<xs:element name="category" type="xs:string" />
+				<xs:element name="instructions" type="xs:string" />
+				<xs:element name="testcases" type="testcasesType" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+</xs:schema>

@@ -1,0 +1,18 @@
+<exercise xmlns="assignment.xsd">
+	<shorttitle>interest</shorttitle>
+	<title>Interesting Interests</title>
+	<category>Week 1</category>
+	<instructions>
+	You need to compute some interests in an Excel sheet.
+	</instructions>
+	<testcases>
+		<testcase>
+			<description>
+			Tests whether the interest is applied correctly
+			</description>
+			<input range="A1" lb="0.5" ub="1.5" />
+			<input range="B2" lb="5000" ub="6000" />
+			<output range="C2:C3" />
+		</testcase>
+	</testcases>
+</exercise>
