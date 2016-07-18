@@ -11,6 +11,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import nl.eur.spreadsheettest.xml.Exercise;
@@ -19,13 +20,10 @@ import nl.eur.spreadsheettest.xml.TestcaseType;
 
 public class XMLTest
 {
-	private final static double eps = 10e-8;
-	private final static String report = "%5d";
-	private final static int maxFullGrid = 5;
-	private final static long seed = 54321;
+	private String report = "%4d";
+	private int maxFullGrid = 5;
+	private long seed = 54321;
 	
-	private int numRandomExtreme = 128;
-	private int numRandomSample = 128;
 	private Exercise exercise;
 	
 	private Map<String,Integer> testSucceed;
@@ -56,7 +54,7 @@ public class XMLTest
 		{
 			XMLTest test = new XMLTest();
 			test.readExercise(new File(args[0]));
-			test.testRanges(ref.getSheetAt(0), handin.getSheetAt(0), eps, new Random(seed));
+			test.testRanges(ref, handin);
 			System.out.println(test.makeReport(true));
 		}
 		catch (Exception e)
@@ -66,18 +64,49 @@ public class XMLTest
 		}
 	}
 	
-	public void testRanges(Sheet ref, Sheet test, double eps, Random ran)
+	public void testRanges(Workbook ref, Workbook test)
 	{
+		Random ran = new Random(seed);
+		report = "%"+exercise.getReportDigits()+"d";
+		seed = exercise.getSeed();
+		
 		if (exercise == null)
 		{
 			throw new IllegalStateException("Cannot iterate over tests if no assignment file has been loaded.");
 		}
 		for (TestcaseType tc : exercise.getTestcases().getTestcase())
 		{
+			Sheet refSheet, testSheet;
+			
+			if (tc.getSheetName() != null)
+			{
+				String sn = tc.getSheetName();
+				refSheet = ref.getSheet(sn);
+				testSheet = test.getSheet(sn);
+				if (refSheet == null)
+				{
+					reportError("There is a problem with the assignment: the sheet with name '"+ sn
+							+"' could not be found in the reference solution. Please contact us!");
+					continue;
+				}
+				if (testSheet == null)
+				{
+					reportError("We could not find a sheet with name '"+sn+"' in your solution."
+							+ " Make sure you have a sheet with that exact name.");
+					continue;
+				}
+			}
+			else
+			{
+				refSheet = ref.getSheetAt(0);
+				testSheet = test.getSheetAt(0);
+			}
+			
+			
 			String descr = tc.getDescription().trim().replaceAll("\n", " "); //.replaceAll("\\w+", " ");
 			
 			List<Range> outputs = tc.getOutput().stream().map(ot -> new Range(ot.getRange())).collect(Collectors.toList());
-			ExcelTest et = new ExcelTest(ref, test, eps, outputs);
+			ExcelTest et = new ExcelTest(refSheet, testSheet, tc.getEps(), outputs);
 			
 			int cellCount = 0;
 			List<InputRangeDouble> irds = new ArrayList<>();
@@ -89,7 +118,10 @@ public class XMLTest
 				double precision = i.getPrecision();
 				InputRangeDouble ird = new InputRangeDouble(range,lb,ub,precision);
 				irds.add(ird);
-				cellCount += ird.getCellCount();
+				if (!ird.isTight())
+				{
+					cellCount += ird.getCellCount();
+				}
 			}
 			
 			if (cellCount <= maxFullGrid)
@@ -118,7 +150,7 @@ public class XMLTest
 			else
 			{
 				String curTest = descr + " (random combinations of extreme values)";
-				for (int k=0; k < numRandomExtreme; k++)
+				for (int k=0; k < tc.getRandomCombinations(); k++)
 				{
 					Assignment a = null;
 					for (InputRangeDouble ird : irds)
@@ -139,7 +171,7 @@ public class XMLTest
 			}
 			
 			String curTest = descr + " (random values)";
-			for (int k=0; k < numRandomSample; k++)
+			for (int k=0; k < tc.getRandomDraws(); k++)
 			{
 				Assignment a = null;
 				for (InputRangeDouble ird : irds)

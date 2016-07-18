@@ -5,6 +5,7 @@
 		<xs:sequence>
 			<xs:element name="testcase" type="testcaseType" maxOccurs="unbounded" />
 		</xs:sequence>
+		<xs:attribute name="maxCellsFullTest" type="xs:int" default="5" />
 	</xs:complexType>
 
 	<xs:complexType name="testcaseType">
@@ -13,12 +14,16 @@
 			<xs:element name="input" type="inputType" maxOccurs="unbounded" />
 			<xs:element name="output" type="outputType" maxOccurs="unbounded"/>
 		</xs:sequence>
+		<xs:attribute name="sheetName" type="xs:string" />
+		<xs:attribute name="eps" type="xs:double" default="10e-8" />
+		<xs:attribute name="randomCombinations" type="xs:int" default="256" />
+		<xs:attribute name="randomDraws" type="xs:int" default="256" />
 	</xs:complexType>
 
 	<xs:complexType name="inputType">
 		<xs:attribute name="range" type="xs:string" use="required" />
 		<xs:attribute name="lb" type="xs:double" use="required" />
-		<xs:attribute name="ub" type="xs:double" use="required" />
+		<xs:attribute name="ub" type="xs:double" />
 		<xs:attribute name="precision" type="xs:double" default="0.01" />
 	</xs:complexType>
 	
@@ -47,6 +52,8 @@
 				<xs:element name="instructions" type="xs:string" />
 				<xs:element name="testcases" type="testcasesType" />
 			</xs:sequence>
+			<xs:attribute name="seed" type="xs:long" default="54321" />
+			<xs:attribute name="reportDigits" type="xs:int" default="4" />
 		</xs:complexType>
 	</xs:element>
 	

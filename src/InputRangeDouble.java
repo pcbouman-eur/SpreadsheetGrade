@@ -62,19 +62,34 @@ public class InputRangeDouble implements Iterable<CellReference>
 	public List<Assignment> expandAssignments(List<Assignment> input)
 	{
 		ArrayList<Assignment> result = new ArrayList<>(input);
+		boolean tight = isTight();
 		for (CellReference cr : this)
 		{
 			if (result.isEmpty())
 			{
 				result.add(new Assignment(cr,lowerBound));
-				result.add(new Assignment(cr,upperBound));
+				if (!tight)
+				{
+					result.add(new Assignment(cr,upperBound));
+				}
 				continue;
 			}
-			ArrayList<Assignment> newResult = new ArrayList<>(result.size()*2);
+			ArrayList<Assignment> newResult;
+			if (!tight)
+			{
+				newResult = new ArrayList<>(result.size()*2);
+			}
+			else
+			{
+				newResult = new ArrayList<>(result.size());
+			}
 			for (Assignment a : result)
 			{
 				newResult.add(a.expand(cr, lowerBound));
-				newResult.add(a.expand(cr, upperBound));
+				if (!tight)
+				{
+					newResult.add(a.expand(cr, upperBound));
+				}
 			}
 			result = newResult;
 		}
@@ -131,6 +146,11 @@ public class InputRangeDouble implements Iterable<CellReference>
 		return range.iterator();
 	}
 
+	public boolean isTight()
+	{
+		return Math.abs(upperBound - lowerBound) <= precision;
+	}
+	
 	public int getCellCount()
 	{
 		return range.getNumberOfCells();
