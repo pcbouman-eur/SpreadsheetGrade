@@ -90,7 +90,7 @@ public class XMLTestGUI extends JFrame implements ActionListener
 		setTest.addActionListener(this);
 		temp2.add(setTest);
 		temp.add(temp2, BorderLayout.EAST);
-		temp.setBorder(BorderFactory.createTitledBorder("Solution to test .xslsx"));
+		temp.setBorder(BorderFactory.createTitledBorder("Solution to test .xlsx"));
 		bottom.add(temp);
 		
 		temp = new JPanel();
@@ -151,6 +151,7 @@ public class XMLTestGUI extends JFrame implements ActionListener
 			}
 			
 			XMLTest exercise;
+			long time = System.currentTimeMillis();
 			try
 			{
 				exercise = new XMLTest(xmlFile, true);
@@ -167,6 +168,7 @@ public class XMLTestGUI extends JFrame implements ActionListener
 				try
 				{
 					exercise.testRanges(refBook, testBook);
+					time = System.currentTimeMillis() - time;
 				}
 				catch (Exception e)
 				{
@@ -177,7 +179,7 @@ public class XMLTestGUI extends JFrame implements ActionListener
 				
 				String errors = exercise.getErrorTrace();
 				StringBuilder sb = new StringBuilder();
-				sb.append("The test ran without problems.\n\n");
+				sb.append("The test ran without problems. Finished in "+time+" ms.\n\n");
 				if (errors.length() > 0)
 				{
 					sb.append("Some errors occurred while evaluating the Excel sheets.\n");
