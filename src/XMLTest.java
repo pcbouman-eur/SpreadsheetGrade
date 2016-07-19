@@ -256,7 +256,7 @@ public class XMLTest
 			{
 				String success = String.format(report, testSucceed.get(s));
 				String total = String.format(report, totalTest.get(s));
-				sb.append("[ "+success+" out of "+total+" ] \t: "+s+"\n");
+				sb.append("[ "+success+" out of "+total+" ] : "+s+"\n");
 			}
 		}
 		
