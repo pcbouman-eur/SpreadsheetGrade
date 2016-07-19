@@ -1,4 +1,6 @@
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +33,29 @@ public class XMLTest
 	private Map<String,Integer> totalTest;
 	private Map<String,Integer> errors;
 	
-	public XMLTest()
+	private boolean traceErrors;
+	private StringBuilder errorTrace;
+	
+	private XMLTest()
 	{
-		testSucceed = new TreeMap<>();
-		testFailed = new TreeMap<>();
-		totalTest = new TreeMap<>();
-		errors = new TreeMap<>();
+		this.testSucceed = new TreeMap<>();
+		this.testFailed = new TreeMap<>();
+		this.totalTest = new TreeMap<>();
+		this.errors = new TreeMap<>();
+		this.traceErrors = false;
+		this.errorTrace = new StringBuilder();
+	}
+	
+	public XMLTest(File f) throws JAXBException
+	{
+		this();
+		readExercise(f);
+	}
+	
+	public XMLTest(File f, boolean traceErrors) throws JAXBException
+	{
+		this(f);
+		this.traceErrors = traceErrors;
 	}
 	
 	public static void main(String [] args)
@@ -75,6 +94,7 @@ public class XMLTest
 			throw new IllegalStateException("Cannot iterate over tests if no assignment file has been loaded.");
 		}
 		
+		outerLoop:
 		for (TestcaseType tc : exercise.getTestcases().getTestcase())
 		{
 			Sheet refSheet, testSheet;
@@ -144,6 +164,13 @@ public class XMLTest
 					catch (Exception e)
 					{
 						reportError(e.getClass().getSimpleName()+" during "+curTest);
+						if (traceErrors)
+						{
+							errorTrace.append("While running "+curTest+" the following Exception was raised\n");
+							errorTrace.append(getStackTrace(e));
+							errorTrace.append("\n");
+						}
+						continue outerLoop;
 					}
 				}
 				
@@ -166,6 +193,13 @@ public class XMLTest
 					catch (Exception e)
 					{
 						reportError(e.getClass().getSimpleName()+" during "+curTest);
+						if (traceErrors)
+						{
+							errorTrace.append("While running "+curTest+" the following Exception was raised\n");
+							errorTrace.append(getStackTrace(e));
+							errorTrace.append("\n");
+						}
+						continue outerLoop;
 					}
 					
 				}
@@ -186,9 +220,25 @@ public class XMLTest
 				catch (Exception e)
 				{
 					reportError(e.getClass().getSimpleName()+" during "+curTest);
+					if (traceErrors)
+					{
+						errorTrace.append("While running "+curTest+" the following Exception was raised\n");
+						errorTrace.append(getStackTrace(e));
+						errorTrace.append("\n");
+					}
+					continue outerLoop;
 				}
 			}
 		}
+	}
+	
+	public String getErrorTrace()
+	{
+		if (!traceErrors)
+		{
+			throw new IllegalStateException("This XMLTest does not trace errors");
+		}
+		return errorTrace.toString();
 	}
 	
 	public String makeReport(boolean json)
@@ -224,6 +274,9 @@ public class XMLTest
 			}
 		}
 		
+		
+		double score = Math.floor(100*(testSucceed.size()*1d)/(totalTest.size()*1d));
+		
 		if (errors.size() > 0)
 		{
 			sb.append("\n");
@@ -235,9 +288,11 @@ public class XMLTest
 				String err = String.format(report, errors.get(s));
 				sb.append("[ "+err+" error(s) ] : "+s+"\n");
 			}
+			// Force score to zero if there were any errors
+			score = 0;
 		}
 		
-		double score = Math.floor(100*(testSucceed.size()*1d)/(totalTest.size()*1d));
+		
 		
 		if (json)
 		{
@@ -274,5 +329,13 @@ public class XMLTest
 	private void reportError(String error)
 	{
 		errors.merge(error, 1, (i,j) -> i+j);
+	}
+	
+	public static String getStackTrace(Exception e)
+	{
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		PrintWriter pw = new PrintWriter(bos);
+		e.printStackTrace(pw);
+		return bos.toString();
 	}
 }
