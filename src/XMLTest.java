@@ -485,11 +485,13 @@ public class XMLTest
 		return functions;
 	}
 	
+	
 	public static String getStackTrace(Exception e)
 	{
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		PrintWriter pw = new PrintWriter(bos);
 		e.printStackTrace(pw);
+		pw.flush();
 		return bos.toString();
 	}
 }
