@@ -2,9 +2,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -12,12 +15,25 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.poi.ss.formula.FormulaParser;
+import org.apache.poi.ss.formula.FormulaType;
+import org.apache.poi.ss.formula.ptg.AbstractFunctionPtg;
+import org.apache.poi.ss.formula.ptg.AttrPtg;
+import org.apache.poi.ss.formula.ptg.Ptg;
+import org.apache.poi.ss.formula.ptg.RefPtgBase;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFEvaluationWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import nl.eur.spreadsheettest.xml.AbsoluteType;
 import nl.eur.spreadsheettest.xml.Exercise;
+import nl.eur.spreadsheettest.xml.FunctionConstraint;
 import nl.eur.spreadsheettest.xml.InputType;
+import nl.eur.spreadsheettest.xml.StyleType;
 import nl.eur.spreadsheettest.xml.TestcaseType;
 
 public class XMLTest
@@ -73,7 +89,7 @@ public class XMLTest
 		{
 			XMLTest test = new XMLTest();
 			test.readExercise(new File(args[0]));
-			test.testRanges(ref, handin);
+			test.testAll(ref, handin);
 			System.out.println(test.makeReport(true));
 		}
 		catch (Exception e)
@@ -83,16 +99,124 @@ public class XMLTest
 		}
 	}
 	
-	public void testRanges(Workbook ref, Workbook test)
+	public void testAll(XSSFWorkbook ref, XSSFWorkbook test)
 	{
-		Random ran = new Random(seed);
-		report = "%"+exercise.getReportDigits()+"d";
-		seed = exercise.getSeed();
-		
+		testRanges(ref, test);
+		testStyle(test);
+	}
+	
+	public void testStyle(XSSFWorkbook test)
+	{
 		if (exercise == null)
 		{
 			throw new IllegalStateException("Cannot iterate over tests if no assignment file has been loaded.");
 		}
+		
+		if (exercise.getStyles() == null)
+		{
+			return;
+		}
+
+		XSSFEvaluationWorkbook ewb = XSSFEvaluationWorkbook.create(test);
+		
+		for (StyleType style : exercise.getStyles().getStyle())
+		{
+			// Grab the relevant sheet
+			String sn = style.getSheetName();
+			Sheet sheet;
+			if (sn != null)
+			{
+				sheet = test.getSheet(sn);
+				if (sheet == null)
+				{
+					reportError("We could not find a sheet with name '"+sn+"' in your solution."
+							+ " Make sure you have a sheet with that exact name.");
+					continue;
+				}
+			}
+			else
+			{
+				sheet = test.getSheetAt(0);
+			}
+			int sheetIndex = test.getSheetIndex(sheet);
+			String sheetString = "";
+			if (sn != null)
+			{
+					sheetString = " in sheet '"+sn+"'";
+			}
+			
+			// Setup data structures for checking
+			Set<CellReference> absRefs = new HashSet<>();
+		
+			Set<String> functionsUsed = new HashSet<>();
+			
+			for (AbsoluteType abs : style.getAbsolute())
+			{
+				Range r = new Range(abs.getRange());
+				for (CellReference cr : r)
+				{
+					absRefs.add(cr);
+				}
+			}
+			
+			for (Row row : sheet)
+			{
+				for (Cell c : row)
+				{
+					if (c.getCellType() == Cell.CELL_TYPE_FORMULA)
+					{
+						Ptg[] tokens = FormulaParser.parse(c.getCellFormula(), ewb, FormulaType.CELL, sheetIndex);
+						functionsUsed.addAll(getFunctions(tokens));
+						checkReferences(tokens, absRefs, sheetString);
+					}
+				}
+			}
+			
+			for (FunctionConstraint req : style.getRequired())
+			{
+				String fname = req.getFunction().trim().toUpperCase();
+				reportTest("The function '"+fname+"' is used at least once"+sheetString+"", functionsUsed.contains(fname));
+			}
+			
+			for (FunctionConstraint req : style.getForbidden())
+			{
+				String fname = req.getFunction().trim().toUpperCase();
+				reportTest("The function '"+fname+"' is never used"+sheetString+"", !functionsUsed.contains(fname));
+			}
+		}
+		
+		
+	}
+	
+	private void checkReferences(Ptg[] tokens, Set<CellReference> absRefs, String sheetString)
+	{
+		for (Ptg token : tokens)
+		{
+			if (token instanceof RefPtgBase)
+			{
+				RefPtgBase rp = (RefPtgBase) token;
+				CellReference cr = new CellReference(rp.getRow(), rp.getColumn());
+				if (absRefs.contains(cr))
+				{
+					boolean test = !rp.isColRelative() && !rp.isRowRelative();
+					reportTest("References to cell "+cr.formatAsString()+sheetString+" are absolute", test);
+				}
+			}
+		}
+	}
+
+	public void testRanges(XSSFWorkbook ref, XSSFWorkbook test)
+	{
+
+		if (exercise == null)
+		{
+			throw new IllegalStateException("Cannot iterate over tests if no assignment file has been loaded.");
+		}
+		
+		Random ran = new Random(seed);
+		report = "%"+exercise.getReportDigits()+"d";
+		seed = exercise.getSeed();
+		
 		
 		outerLoop:
 		for (TestcaseType tc : exercise.getTestcases().getTestcase())
@@ -275,7 +399,7 @@ public class XMLTest
 		}
 		
 		
-		double score = Math.floor(100*(testSucceed.size()*1d)/(totalTest.size()*1d));
+		double score = Math.floor(100*(totalTest.size()-testFailed.size()*1d)/(totalTest.size()*1d));
 		
 		if (errors.size() > 0)
 		{
@@ -329,6 +453,36 @@ public class XMLTest
 	private void reportError(String error)
 	{
 		errors.merge(error, 1, (i,j) -> i+j);
+	}
+	
+	public static Set<String> getFunctions(Ptg[] tokens)
+	{
+		Set<String> functions = new HashSet<>();
+		for (Ptg token : tokens)
+		{
+			if (token instanceof AttrPtg)
+			{
+				AttrPtg ap = (AttrPtg) token;
+				if (ap.isSum())
+				{
+					functions.add("SUM");
+				}
+				if (ap.isOptimizedIf())
+				{
+					functions.add("IF");
+				}
+				if (ap.isOptimizedChoose())
+				{
+					functions.add("CHOOSE");
+				}
+			}
+			if (token instanceof AbstractFunctionPtg)
+			{
+				AbstractFunctionPtg fvp = (AbstractFunctionPtg) token;
+				functions.add(fvp.getName().trim().toUpperCase());
+			}
+		}
+		return functions;
 	}
 	
 	public static String getStackTrace(Exception e)

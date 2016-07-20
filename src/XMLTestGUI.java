@@ -167,11 +167,12 @@ public class XMLTestGUI extends JFrame implements ActionListener
 			{
 				try
 				{
-					exercise.testRanges(refBook, testBook);
+					exercise.testAll(refBook, testBook);
 					time = System.currentTimeMillis() - time;
 				}
 				catch (Exception e)
 				{
+					e.printStackTrace();
 					JOptionPane.showMessageDialog(this, "An error occurred while running the tests. This should not happen! ");
 					log.setText("An error occurred while running the tests.\nPlease notify Paul about this\n\n"+getStackTrace(e));
 					return;
@@ -256,6 +257,7 @@ public class XMLTestGUI extends JFrame implements ActionListener
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		PrintWriter pw = new PrintWriter(bos);
 		e.printStackTrace(pw);
+		pw.flush();
 		return bos.toString();
 	}
 	

@@ -15,15 +15,15 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for outputType complex type.
+ * <p>Java class for functionConstraint complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="outputType">
+ * &lt;complexType name="functionConstraint">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="range" use="required" type="{assignment.xsd}rangeType" />
+ *       &lt;attribute name="function" use="required" type="{assignment.xsd}functionName" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -32,34 +32,34 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "outputType")
-public class OutputType {
+@XmlType(name = "functionConstraint")
+public class FunctionConstraint {
 
-    @XmlAttribute(name = "range", required = true)
-    protected String range;
+    @XmlAttribute(name = "function", required = true)
+    protected String function;
 
     /**
-     * Gets the value of the range property.
+     * Gets the value of the function property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getRange() {
-        return range;
+    public String getFunction() {
+        return function;
     }
 
     /**
-     * Sets the value of the range property.
+     * Sets the value of the function property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setRange(String value) {
-        this.range = value;
+    public void setFunction(String value) {
+        this.function = value;
     }
 
 }

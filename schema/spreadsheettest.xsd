@@ -37,18 +37,49 @@
 		<xs:attribute name="range" type="rangeType" use="required" />
 	</xs:complexType>
 	
+	<xs:complexType name="styleType">
+		<xs:sequence>
+			<xs:element name="absolute" type="absoluteType" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="required" type="functionConstraint" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="forbidden" type="functionConstraint" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="sheetName" type="xs:string" />
+	</xs:complexType>
+	
+	<xs:complexType name="stylesType">
+		<xs:sequence>
+			<xs:element name="style" type="styleType" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="absoluteType">
+		<xs:attribute name="range" type="rangeType" />
+	</xs:complexType>
+	
+	<xs:complexType name="functionConstraint">
+		<xs:attribute name="function" type="functionName" use="required" /> 
+	</xs:complexType>
+	
+	<xs:simpleType name="functionName">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Z]+" />
+		</xs:restriction>
+	</xs:simpleType>
+	
 	<xs:simpleType name="rangeType">
     	<xs:restriction base="xs:string">
-      		<xs:pattern value="[A-Z]+[0-9]+(:[A-Z]+[0-9]+)?"/>
+      		<xs:pattern value="[A-Z]+[0-9]+(:[A-Z]+[0-9]+)?" />
     	</xs:restriction>
 	</xs:simpleType>
 	
 	<xs:simpleType name="shortType">
     	<xs:restriction base="xs:string">
     		<xs:whiteSpace value="collapse" />
-      		<xs:pattern value="[a-zA-Z0-9]{1,16}"/>
+      		<xs:pattern value="[a-zA-Z0-9]{1,16}" />
     	</xs:restriction>
 	</xs:simpleType>
+	
+	
 
 	<xs:element name="exercise">
 		<xs:complexType>
@@ -58,6 +89,7 @@
 				<xs:element name="category" type="collapseString" />
 				<xs:element name="instructions" type="collapseString" />
 				<xs:element name="testcases" type="testcasesType" />
+				<xs:element name="styles" type="stylesType" />
 			</xs:sequence>
 			<xs:attribute name="seed" type="xs:long" default="54321" />
 			<xs:attribute name="reportDigits" type="xs:int" default="4" />

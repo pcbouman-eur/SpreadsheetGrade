@@ -15,15 +15,15 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for outputType complex type.
+ * <p>Java class for absoluteType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="outputType">
+ * &lt;complexType name="absoluteType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="range" use="required" type="{assignment.xsd}rangeType" />
+ *       &lt;attribute name="range" type="{assignment.xsd}rangeType" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -32,10 +32,10 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "outputType")
-public class OutputType {
+@XmlType(name = "absoluteType")
+public class AbsoluteType {
 
-    @XmlAttribute(name = "range", required = true)
+    @XmlAttribute(name = "range")
     protected String range;
 
     /**
