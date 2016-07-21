@@ -76,6 +76,8 @@ public class XMLTest
 	
 	public static void main(String [] args)
 	{
+		DatabaseFunctions.register();
+		
 		if (args.length != 3)
 		{
 			System.out.println("This program requires three arguments: ");
@@ -147,15 +149,32 @@ public class XMLTest
 			
 			// Setup data structures for checking
 			Set<CellReference> absRefs = new HashSet<>();
+			Map<Integer,String> colRefs = new HashMap<>();
+			Set<Integer> rowRefs = new HashSet<>();
+			
 		
 			Set<String> functionsUsed = new HashSet<>();
 			
 			for (AbsoluteType abs : style.getAbsolute())
 			{
-				Range r = new Range(abs.getRange());
-				for (CellReference cr : r)
+				if (abs.getRange() != null)
 				{
-					absRefs.add(cr);
+					Range r = new Range(abs.getRange());
+					for (CellReference cr : r)
+					{
+						absRefs.add(cr);
+					}
+				}
+				if (abs.getCol() != null)
+				{
+					String colName = abs.getCol().trim().toUpperCase();
+					int col = new CellReference(colName+"1").getCol();
+					colRefs.put(col, colName);
+				}
+				if (abs.getRow() != null)
+				{
+					int row = abs.getRow();
+					rowRefs.add(row);
 				}
 			}
 			
@@ -167,7 +186,7 @@ public class XMLTest
 					{
 						Ptg[] tokens = FormulaParser.parse(c.getCellFormula(), ewb, FormulaType.CELL, sheetIndex);
 						functionsUsed.addAll(getFunctions(tokens));
-						checkReferences(tokens, absRefs, sheetString);
+						checkReferences(tokens, absRefs, colRefs, rowRefs, sheetString);
 					}
 				}
 			}
@@ -188,7 +207,7 @@ public class XMLTest
 		
 	}
 	
-	private void checkReferences(Ptg[] tokens, Set<CellReference> absRefs, String sheetString)
+	private void checkReferences(Ptg[] tokens, Set<CellReference> absRefs, Map<Integer,String> colRefs, Set<Integer> rowRefs, String sheetString)
 	{
 		for (Ptg token : tokens)
 		{
@@ -200,6 +219,17 @@ public class XMLTest
 				{
 					boolean test = !rp.isColRelative() && !rp.isRowRelative();
 					reportTest("References to cell "+cr.formatAsString()+sheetString+" are absolute", test);
+				}
+				if (colRefs.containsKey(rp.getColumn()))
+				{
+					String colName = colRefs.get(rp.getColumn());
+					boolean test = !rp.isColRelative();
+					reportTest("References to column "+colName+sheetString+" are absolute", test);
+				}
+				if (rowRefs.contains(rp.getRow()))
+				{
+					boolean test = !rp.isRowRelative();
+					reportTest("References to row "+rp.getRow()+" are absolute", test);
 				}
 			}
 		}

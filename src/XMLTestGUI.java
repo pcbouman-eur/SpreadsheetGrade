@@ -249,6 +249,7 @@ public class XMLTestGUI extends JFrame implements ActionListener
 	
 	public static void main(String [] args)
 	{
+		DatabaseFunctions.register();
 		new XMLTestGUI();
 	}
 	
