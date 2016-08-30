@@ -17,6 +17,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.poi.ss.formula.FormulaParser;
 import org.apache.poi.ss.formula.FormulaType;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.formula.ptg.AbstractFunctionPtg;
 import org.apache.poi.ss.formula.ptg.AttrPtg;
 import org.apache.poi.ss.formula.ptg.Ptg;
@@ -48,6 +49,8 @@ public class XMLTest
 	private Map<String,Integer> testFailed;
 	private Map<String,Integer> totalTest;
 	private Map<String,Integer> errors;
+	private Map<String,Integer> notImpl;
+	private Map<String,Integer> missing;
 	
 	private boolean traceErrors;
 	private StringBuilder errorTrace;
@@ -58,6 +61,8 @@ public class XMLTest
 		this.testFailed = new TreeMap<>();
 		this.totalTest = new TreeMap<>();
 		this.errors = new TreeMap<>();
+		this.notImpl = new TreeMap<>();
+		this.missing = new TreeMap<>();
 		this.traceErrors = false;
 		this.errorTrace = new StringBuilder();
 	}
@@ -281,7 +286,7 @@ public class XMLTest
 			String descr = tc.getDescription().trim().replaceAll("\n", " "); //.replaceAll("\\w+", " ");
 			
 			List<Range> outputs = tc.getOutput().stream().map(ot -> new Range(ot.getRange())).collect(Collectors.toList());
-			ExcelTest et = new ExcelTest(refSheet, testSheet, tc.getEps(), outputs);
+			ExcelTest et = new ExcelTest(refSheet, testSheet, tc.getEps(), outputs, tc.isTextStrict());
 			
 			int cellCount = 0;
 			List<InputRangeDouble> irds = new ArrayList<>();
@@ -315,6 +320,14 @@ public class XMLTest
 					{
 						reportTest(curTest,et.runTest(a));
 					}
+					catch (NotImplementedException nie)
+					{
+						notImpl.merge(nie.getMessage(), 1, (i,j) -> i+j);
+					}
+					catch (NoCellException nce)
+					{
+						missing.merge(nce.getMessage(), 1, (i,j) -> i+j);
+					}
 					catch (Exception e)
 					{
 						reportError(e.getClass().getSimpleName()+" during "+curTest);
@@ -344,6 +357,14 @@ public class XMLTest
 					{
 						reportTest(curTest,et.runTest(a));
 					}
+					catch (NotImplementedException nie)
+					{
+						notImpl.merge(nie.getMessage(), 1, (i,j) -> i+j);
+					}
+					catch (NoCellException nce)
+					{
+						missing.merge(nce.getMessage(), 1, (i,j) -> i+j);
+					}
 					catch (Exception e)
 					{
 						reportError(e.getClass().getSimpleName()+" during "+curTest);
@@ -370,6 +391,14 @@ public class XMLTest
 				try
 				{
 					reportTest(curTest,et.runTest(a));
+				}
+				catch (NotImplementedException nie)
+				{
+					notImpl.merge(nie.getMessage(), 1, (i,j) -> i+j);
+				}
+				catch (NoCellException nce)
+				{
+					missing.merge(nce.getMessage(), 1, (i,j) -> i+j);
 				}
 				catch (Exception e)
 				{
@@ -431,17 +460,45 @@ public class XMLTest
 		
 		double score = Math.floor(100*(totalTest.size()-testFailed.size()*1d)/(totalTest.size()*1d));
 		
-		if (errors.size() > 0)
+		int numErr = errors.size() + notImpl.size() + missing.size();
+		
+		if (numErr > 0)
 		{
 			sb.append("\n");
 			sb.append("****************\n");
 			sb.append("* TEST  ERRORS *\n");
 			sb.append("****************\n");
-			for (String s : errors.keySet())
+			if (errors.size() > 0)
 			{
-				String err = String.format(report, errors.get(s));
-				sb.append("[ "+err+" error(s) ] : "+s+"\n");
+				for (String s : errors.keySet())
+				{
+					String err = String.format(report, errors.get(s));
+					sb.append("[ "+err+" error(s) ] : "+s+"\n");
+				}
+				sb.append("\n");
 			}
+			if (notImpl.size() > 0)
+			{
+				sb.append("There was a problem during grading, because not all Excel functions\n");
+				sb.append("are implemented in the grading system. We ran into these functions:\n");
+				for (String s : notImpl.keySet())
+				{
+					String err = String.format(report, notImpl.get(s));
+					sb.append(" ("+err+" times) : "+s);
+				}
+				sb.append("\n");
+			}
+			if (missing.size() > 0)
+			{
+				sb.append("There was a problem during grading, because some cells were empty.\n");
+				for (String s : missing.keySet())
+				{
+					String err = String.format(report, missing.get(s));
+					sb.append(" ("+err+" times) : "+s);
+				}
+				sb.append("\n");
+			}
+			
 			// Force score to zero if there were any errors
 			score = 0;
 		}

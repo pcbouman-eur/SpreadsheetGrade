@@ -4,6 +4,7 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellReference;
 
@@ -15,20 +16,34 @@ public class ExcelTest
 	private Sheet test;
 	
 	private List<Range> outputs;
+	private boolean strict;
 	
 	public ExcelTest(Sheet ref, Sheet test, double eps, List<Range> output)
+	{
+		this(ref, test, eps, output, true);
+	}
+	
+	public ExcelTest(Sheet ref, Sheet test, double eps, List<Range> output, boolean strict)
 	{
 		this.reference = ref;
 		this.test = test;
 		
 		this.eps = eps;
 		this.outputs = new ArrayList<>(output);
+		this.strict = strict;
 	}
 	
 	public boolean runTest(Assignment a)
 	{
-		a.assign(reference);
-		a.assign(test);
+		if (a != null)
+		{
+			a.assign(reference);
+			a.assign(test);
+		}
+		else
+		{
+			//
+		}
 		return testAll();
 	}
 	
@@ -59,8 +74,23 @@ public class ExcelTest
 		FormulaEvaluator refEval = reference.getWorkbook().getCreationHelper().createFormulaEvaluator();
 		FormulaEvaluator testEval = test.getWorkbook().getCreationHelper().createFormulaEvaluator();
 		
+		
+		Row refRow = reference.getRow(cell.getRow());
+		Row testRow = reference.getRow(cell.getRow());
+		
+		if (refRow == null || testRow == null)
+		{
+			throw new NoCellException(cell, refRow == null);
+		}
+		
 		Cell refCell = reference.getRow(cell.getRow()).getCell(cell.getCol());
 		Cell testCell = test.getRow(cell.getRow()).getCell(cell.getCol());
+		
+		if (refCell == null || testCell == null)
+		{
+			throw new NoCellException(cell, refCell == null);
+		}
+		
 		
 		int type = refCell.getCellType();
 		int testType = testCell.getCellType();
@@ -98,7 +128,14 @@ public class ExcelTest
 			}
 			else if (valType == Cell.CELL_TYPE_STRING)
 			{
-				return refVal.getStringValue().equals(testVal.getStringValue());
+				String refString = refVal.getStringValue();
+				String testString = testVal.getStringValue();
+				if (!strict)
+				{
+					refString = refString.toLowerCase().trim();
+					testString = testString.toLowerCase().trim();
+				}
+				return refString.equals(testString);
 			}
 			else if (valType == Cell.CELL_TYPE_BLANK)
 			{

@@ -24,6 +24,7 @@
 		<xs:attribute name="eps" type="xs:double" default="10e-8" />
 		<xs:attribute name="randomCombinations" type="xs:int" default="256" />
 		<xs:attribute name="randomDraws" type="xs:int" default="256" />
+		<xs:attribute name="textStrict" type="xs:boolean" default="false" />
 	</xs:complexType>
 
 	<xs:complexType name="inputType">
