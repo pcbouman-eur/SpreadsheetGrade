@@ -16,6 +16,7 @@ public class DatabaseFunctions
 		FunctionEval.registerFunction("DPRODUCT", new DStarRunner(() -> new DProduct()));
 		FunctionEval.registerFunction("DCOUNT", new DStarRunner(() -> new DCount(false)));
 		FunctionEval.registerFunction("DCOUNTA", new DStarRunner(() -> new DCount(true)));
+		FunctionEval.registerFunction("DAVERAGE", new DStarRunner(() -> new DAverage()));
 	}
 	
 	public static final class DMax implements IDStarAlgorithm
@@ -130,6 +131,36 @@ public class DatabaseFunctions
 	    @Override
 	    public ValueEval getResult() {
 	       return new NumberEval(count);
+	    }
+	}
+	
+	public static final class DAverage implements IDStarAlgorithm
+	{
+		// Excel defines the product of an empty list as 0
+	    private int count;
+	    private double sum;
+	    
+	    public DAverage()
+	    {
+	    	count = 0;
+	    }
+
+	    @Override
+	    public boolean processMatch(ValueEval eval) {
+	    	
+	    	if (eval instanceof NumericValueEval)
+	    	{
+	    		NumericValueEval number = (NumericValueEval) eval;
+	    		count++;
+	    		sum += number.getNumberValue();
+	    	}
+	    	
+	        return true;
+	    }
+
+	    @Override
+	    public ValueEval getResult() {
+	       return new NumberEval(sum/count);
 	    }
 	}
 	

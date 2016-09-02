@@ -18,6 +18,7 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.poi.ss.formula.FormulaParser;
 import org.apache.poi.ss.formula.FormulaType;
 import org.apache.poi.ss.formula.eval.NotImplementedException;
+import org.apache.poi.ss.formula.eval.NotImplementedFunctionException;
 import org.apache.poi.ss.formula.ptg.AbstractFunctionPtg;
 import org.apache.poi.ss.formula.ptg.AttrPtg;
 import org.apache.poi.ss.formula.ptg.Ptg;
@@ -320,6 +321,10 @@ public class XMLTest
 					{
 						reportTest(curTest,et.runTest(a));
 					}
+					catch (NotImplementedFunctionException nie)
+					{
+						notImpl.merge("Usage of function '"+nie.getFunctionName()+"'", 1, (i,j) -> i+j);
+					}
 					catch (NotImplementedException nie)
 					{
 						notImpl.merge(nie.getMessage(), 1, (i,j) -> i+j);
@@ -357,6 +362,10 @@ public class XMLTest
 					{
 						reportTest(curTest,et.runTest(a));
 					}
+					catch (NotImplementedFunctionException nie)
+					{
+						notImpl.merge("Usage of function '"+nie.getFunctionName()+"'", 1, (i,j) -> i+j);
+					}
 					catch (NotImplementedException nie)
 					{
 						notImpl.merge(nie.getMessage(), 1, (i,j) -> i+j);
@@ -391,6 +400,10 @@ public class XMLTest
 				try
 				{
 					reportTest(curTest,et.runTest(a));
+				}
+				catch (NotImplementedFunctionException nie)
+				{
+					notImpl.merge("Usage of function '"+nie.getFunctionName()+"'", 1, (i,j) -> i+j);
 				}
 				catch (NotImplementedException nie)
 				{
