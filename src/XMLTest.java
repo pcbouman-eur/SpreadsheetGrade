@@ -109,6 +109,8 @@ public class XMLTest
 	
 	public void testAll(XSSFWorkbook ref, XSSFWorkbook test)
 	{
+		ModernFunctions.addModernFunctions(ref);
+		ModernFunctions.addModernFunctions(test);
 		testRanges(ref, test);
 		testStyle(test);
 	}
