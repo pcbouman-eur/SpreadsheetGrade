@@ -69,91 +69,109 @@ public class ExcelTest
 		return true;
 	}
 	
-	private boolean compare(CellReference cell)
+	private CellValue getRefValue(FormulaEvaluator fe, CellReference cellRef, Sheet sh)
 	{
-		FormulaEvaluator refEval = reference.getWorkbook().getCreationHelper().createFormulaEvaluator();
-		FormulaEvaluator testEval = test.getWorkbook().getCreationHelper().createFormulaEvaluator();
-		
-		
-		Row refRow = reference.getRow(cell.getRow());
-		Row testRow = reference.getRow(cell.getRow());
-		
-		if (refRow == null || testRow == null)
+		Row row = sh.getRow(cellRef.getRow());
+		if (row == null)
 		{
-			throw new NoCellException(cell, refRow == null);
+			throw new NoCellException(cellRef, row == null);
+		}
+		Cell cell = sh.getRow(cellRef.getRow()).getCell(cellRef.getCol());
+		if (cell == null)
+		{
+			throw new NoCellException(cellRef, cell == null);
 		}
 		
-		Cell refCell = reference.getRow(cell.getRow()).getCell(cell.getCol());
-		Cell testCell = test.getRow(cell.getRow()).getCell(cell.getCol());
+		int type = cell.getCellType();
 		
-		if (refCell == null || testCell == null)
+		if (type == Cell.CELL_TYPE_BOOLEAN)
 		{
-			throw new NoCellException(cell, refCell == null);
+			return CellValue.valueOf(cell.getBooleanCellValue());
 		}
-		
-		
-		int type = refCell.getCellType();
-		int testType = testCell.getCellType();
-		
-		if (testType != type)
+		else if (type == Cell.CELL_TYPE_NUMERIC)
 		{
-			return false;
+			return new CellValue(cell.getNumericCellValue());
 		}
-		
-		else if (type == Cell.CELL_TYPE_BOOLEAN)
+		else if (type == Cell.CELL_TYPE_STRING)
 		{
-			return refCell.getBooleanCellValue() == testCell.getBooleanCellValue();
+			return new CellValue(cell.getStringCellValue());
+		}
+		else if (type == Cell.CELL_TYPE_ERROR)
+		{
+			return CellValue.getError(cell.getErrorCellValue());
 		}
 		else if (type == Cell.CELL_TYPE_FORMULA)
 		{
 			// compare evaluated values!!
-			CellValue refVal = refEval.evaluate(refCell);
-			CellValue testVal = testEval.evaluate(testCell);
+			CellValue val = fe.evaluate(cell);
 			
-			if (refVal.getCellType() != testVal.getCellType())
-			{
-				return false;
-			}
-			
-			int valType = refVal.getCellType();
+			int valType = val.getCellType();
 			
 			if (valType == Cell.CELL_TYPE_BOOLEAN)
 			{
-				return refVal.getBooleanValue() == testVal.getBooleanValue();
+				return CellValue.valueOf(val.getBooleanValue());
 			}
 			else if (valType == Cell.CELL_TYPE_NUMERIC)
 			{
-				//System.out.println(""+refVal.getNumberValue()+"  vs "+testVal.getNumberValue());
-				return Math.abs(refVal.getNumberValue() - testVal.getNumberValue()) <= eps;
+				return new CellValue(val.getNumberValue());
 			}
 			else if (valType == Cell.CELL_TYPE_STRING)
 			{
-				String refString = refVal.getStringValue();
-				String testString = testVal.getStringValue();
-				if (!strict)
-				{
-					refString = refString.toLowerCase().trim();
-					testString = testString.toLowerCase().trim();
-				}
-				return refString.equals(testString);
-			}
-			else if (valType == Cell.CELL_TYPE_BLANK)
-			{
-				return true;
+				return new CellValue(val.getStringValue());
 			}
 			else if (valType == Cell.CELL_TYPE_ERROR)
 			{
-				return refVal.getErrorValue() == testVal.getErrorValue();
+				return CellValue.getError(val.getErrorValue());
 			}
-			
 		}
-		else if (type == Cell.CELL_TYPE_NUMERIC)
+		return null;
+	}
+	
+	
+	
+	private boolean compare(CellReference cell)
+	{
+		FormulaEvaluator refEval = reference.getWorkbook().getCreationHelper().createFormulaEvaluator();
+		FormulaEvaluator testEval = test.getWorkbook().getCreationHelper().createFormulaEvaluator();
+
+		
+		CellValue refVal = getRefValue(refEval, cell, reference);
+		CellValue testVal = getRefValue(testEval, cell, test);
+		
+		if ( refVal == null || testVal == null)
 		{
-			return Math.abs(refCell.getNumericCellValue() - testCell.getNumericCellValue()) <= eps;
+			return refVal == testVal;
 		}
-		else if (type == Cell.CELL_TYPE_STRING)
+		
+		int refType = refVal.getCellType();
+		int testType = testVal.getCellType();
+		
+		if (refType != testType)
 		{
-			return refCell.getStringCellValue().equals(testCell.getStringCellValue());
+			return false;
+		}
+		
+
+		if (refType == Cell.CELL_TYPE_BOOLEAN)
+		{
+			return refVal.getBooleanValue() == testVal.getBooleanValue();
+		}
+		else if (refType == Cell.CELL_TYPE_NUMERIC)
+		{
+			return Math.abs(refVal.getNumberValue() - testVal.getNumberValue()) <= eps;
+		}
+		else if (refType == Cell.CELL_TYPE_STRING)
+		{
+			if (strict)
+			{
+				return refVal.getStringValue().equals(testVal.getStringValue());
+			}
+			else
+			{
+				return refVal.getStringValue().trim().toLowerCase().equals(
+							testVal.getStringValue().trim().toLowerCase()
+						);
+			}
 		}
 		return false;
 	}
