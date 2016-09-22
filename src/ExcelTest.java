@@ -10,6 +10,8 @@ import org.apache.poi.ss.util.CellReference;
 
 public class ExcelTest
 {
+	private final static boolean localEval = true;
+	
 	private double eps;
 	
 	private Sheet reference;
@@ -52,13 +54,22 @@ public class ExcelTest
 		FormulaEvaluator refEval = reference.getWorkbook().getCreationHelper().createFormulaEvaluator();
 		FormulaEvaluator testEval = test.getWorkbook().getCreationHelper().createFormulaEvaluator();
 		
-		refEval.evaluateAll();
-		testEval.evaluateAll();
-		
+		if (!localEval)
+		{
+			refEval.evaluateAll();
+			testEval.evaluateAll();
+		}
+			
 		for (Range or : outputs)
 		{
 			for (CellReference cr : or)
 			{
+				if (localEval)
+				{
+					refEval.evaluate(reference.getRow(cr.getRow()).getCell(cr.getCol()));
+					testEval.evaluate(test.getRow(cr.getRow()).getCell(cr.getCol()));
+				}
+				
 				//System.out.println("comparing.. "+cr);
 				if (!compare(cr))
 				{
