@@ -329,7 +329,17 @@ public class XMLTest
 					}
 					catch (NotImplementedException nie)
 					{
-						notImpl.merge(nie.getMessage(), 1, (i,j) -> i+j);
+						if (nie.getCause() instanceof NotImplementedFunctionException)
+						{
+							NotImplementedFunctionException nife = (NotImplementedFunctionException) nie.getCause();
+							String msg = "Usage of unknown function '"+nife.getFunctionName()+"'";
+							msg += " caused by "+nie.getMessage();
+							notImpl.merge(msg, 1, (i,j) -> i+j);						
+						}
+						else
+						{
+							notImpl.merge(nie.getMessage(), 1, (i,j) -> i+j);
+						}
 					}
 					catch (NoCellException nce)
 					{
@@ -370,7 +380,17 @@ public class XMLTest
 					}
 					catch (NotImplementedException nie)
 					{
-						notImpl.merge(nie.getMessage(), 1, (i,j) -> i+j);
+						if (nie.getCause() instanceof NotImplementedFunctionException)
+						{
+							NotImplementedFunctionException nife = (NotImplementedFunctionException) nie.getCause();
+							String msg = "Usage of unknown function '"+nife.getFunctionName()+"'";
+							msg += " caused by "+nie.getMessage();
+							notImpl.merge(msg, 1, (i,j) -> i+j);						
+						}
+						else
+						{
+							notImpl.merge(nie.getMessage(), 1, (i,j) -> i+j);
+						}
 					}
 					catch (NoCellException nce)
 					{
@@ -409,7 +429,17 @@ public class XMLTest
 				}
 				catch (NotImplementedException nie)
 				{
-					notImpl.merge(nie.getMessage(), 1, (i,j) -> i+j);
+					if (nie.getCause() instanceof NotImplementedFunctionException)
+					{
+						NotImplementedFunctionException nife = (NotImplementedFunctionException) nie.getCause();
+						String msg = "Usage of unknown function '"+nife.getFunctionName()+"'";
+						msg += " caused by "+nie.getMessage();
+						notImpl.merge(msg, 1, (i,j) -> i+j);						
+					}
+					else
+					{
+						notImpl.merge(nie.getMessage(), 1, (i,j) -> i+j);
+					}
 				}
 				catch (NoCellException nce)
 				{
