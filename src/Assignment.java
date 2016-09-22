@@ -1,13 +1,13 @@
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
+//import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellReference;
 
 public class Assignment
 {
 	private CellReference cr;
-	//private int type;
-	private CellType type;
+	private int type;
+	//private CellType type;
 	private double numValue;
 	private String stringValue;
 	private boolean boolValue;
@@ -23,7 +23,8 @@ public class Assignment
 	{
 		super();
 		this.cr = cr;
-		this.type = CellType.NUMERIC;
+		//this.type = CellType.NUMERIC;
+		this.type = Cell.CELL_TYPE_NUMERIC;
 		this.numValue = value;
 		this.next = a;
 	}
@@ -37,7 +38,8 @@ public class Assignment
 	{
 		super();
 		this.cr = cr;
-		this.type = CellType.STRING;
+		//this.type = CellType.STRING;
+		this.type = Cell.CELL_TYPE_STRING;
 		this.stringValue = value;
 		this.next = a;
 	}
@@ -51,7 +53,8 @@ public class Assignment
 	{
 		super();
 		this.cr = cr;
-		this.type = CellType.BOOLEAN;
+		//this.type = CellType.BOOLEAN;
+		this.type = Cell.CELL_TYPE_BOOLEAN;
 		this.boolValue = value;
 		this.next = a;
 	}
@@ -75,15 +78,18 @@ public class Assignment
 	{
 		Cell c = s.getRow(cr.getRow()).getCell(cr.getCol());
 		c.setCellType(type);
-		if (type == CellType.BOOLEAN)
+		//if (type == CellType.BOOLEAN)
+		if (type == Cell.CELL_TYPE_BOOLEAN)
 		{
 			c.setCellValue(boolValue);
 		}
-		else if (type == CellType.NUMERIC)
+		//else if (type == CellType.NUMERIC)
+		else if (type == Cell.CELL_TYPE_NUMERIC)
 		{
 			c.setCellValue(numValue);
 		}
-		else if (type == CellType.STRING)
+		//else if (type == CellType.STRING)
+		else if (type == Cell.CELL_TYPE_STRING)
 		{
 			
 			c.setCellValue(stringValue);
