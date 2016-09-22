@@ -62,8 +62,28 @@ public class ExcelTest
 			{
 				if (localEval)
 				{
-					refEval.evaluate(reference.getRow(cr.getRow()).getCell(cr.getCol()));
-					testEval.evaluate(test.getRow(cr.getRow()).getCell(cr.getCol()));
+					Row refRow = reference.getRow(cr.getRow());
+					if (refRow == null)
+					{
+						throw new NoCellException(cr, true);
+					}
+					Cell refCell = refRow.getCell(cr.getCol());
+					if (refCell == null)
+					{
+						throw new NoCellException(cr, true);
+					}
+					refEval.evaluate(refCell);
+					Row testRow = test.getRow(cr.getRow());
+					if (testRow == null)
+					{
+						throw new NoCellException(cr, false);
+					}
+					Cell testCell = testRow.getCell(cr.getCol());
+					if (testCell == null)
+					{
+						throw new NoCellException(cr, false);
+					}
+					testEval.evaluate(testCell);
 				}
 				
 				//System.out.println("comparing.. "+cr);
