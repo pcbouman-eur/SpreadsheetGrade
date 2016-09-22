@@ -223,7 +223,6 @@ public final class ModernFunctions
 						Object o = m.invoke(null, new Object [0]);
 						FreeRefFunction fun = (FreeRefFunction) o;
 						funcs.add(fun);
-						System.out.println("Adding function "+names.get(names.size()-1));
 					}
 					catch (Exception ex)
 					{
@@ -248,7 +247,6 @@ public final class ModernFunctions
 						Object o = f.get(null);
 						FreeRefFunction fun = (FreeRefFunction) o;
 						funcs.add(fun);
-						System.out.println("Adding function "+names.get(names.size()-1));
 					}
 					catch (Exception ex)
 					{
