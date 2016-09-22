@@ -42,10 +42,6 @@ public class ExcelTest
 			a.assign(reference);
 			a.assign(test);
 		}
-		else
-		{
-			//
-		}
 		return testAll();
 	}
 	
