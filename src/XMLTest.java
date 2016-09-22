@@ -83,6 +83,7 @@ public class XMLTest
 	public static void main(String [] args)
 	{
 		DatabaseFunctions.register();
+		ModernFunctions.register();
 		
 		if (args.length != 3)
 		{

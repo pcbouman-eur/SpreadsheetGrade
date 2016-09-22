@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BinaryOperator;
 
+import org.apache.poi.ss.formula.atp.AnalysisToolPak;
 import org.apache.poi.ss.formula.eval.ErrorEval;
 import org.apache.poi.ss.formula.eval.EvaluationException;
 import org.apache.poi.ss.formula.eval.NumberEval;
@@ -31,13 +32,13 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 public final class ModernFunctions
 {
-	@ExcelFunction("CUMIPMT")
+	@ATPFunction(value="CUMIPMT")
 	private static FreeRefFunction CUMIPMT = getCumIPMT();
 
 	@ExcelFunction("_xlfn.RANK.EQ")
 	private static FreeRefFunction RANK_EQ = convert(new Rank());
 
-	@ExcelFunction("AVERAGEIF")
+	@ATPFunction("AVERAGEIF")
 	private static FreeRefFunction AVERAGEIF = convert(combine(
 									new Sumif(),
 									new Countif(),
@@ -115,6 +116,58 @@ public final class ModernFunctions
 			
 			return new NumberEval(sum);
 		};
+	}
+	
+	public static void register()
+	{
+		for (Method m : ModernFunctions.class.getDeclaredMethods())
+		{
+			if (m.isAnnotationPresent(ATPFunction.class))
+			{
+				if (m.getParameterTypes().length == 0 &&
+					m.getReturnType().isAssignableFrom(FreeRefFunction.class) &&
+				    Modifier.isStatic(m.getModifiers()))
+				{
+					try
+					{
+						String name = m.getAnnotation(ATPFunction.class).value(); 
+						Object o = m.invoke(null, new Object [0]);
+						FreeRefFunction fun = (FreeRefFunction) o;
+						AnalysisToolPak.registerFunction(name, fun);
+					}
+					catch (Exception ex)
+					{
+						String msg = "An exception occured while adding the annotated method "
+								   + m +"\n. The original exception was\n"+ex.getMessage();
+						throw new IllegalStateException(msg);
+					}
+					
+				}
+			}
+		}
+		for (Field f : ModernFunctions.class.getDeclaredFields())
+		{
+			if (f.isAnnotationPresent(ATPFunction.class))
+			{
+				if (f.getType().isAssignableFrom(FreeRefFunction.class) &&
+					Modifier.isStatic(f.getModifiers()))
+				{
+					try
+					{
+						String name = f.getAnnotation(ATPFunction.class).value(); 
+						Object o = f.get(null);
+						FreeRefFunction fun = (FreeRefFunction) o;
+						AnalysisToolPak.registerFunction(name, fun);
+					}
+					catch (Exception ex)
+					{
+						String msg = "An exception occured while adding the annotated field "
+								   + f +"\n. The original exception was\n"+ex.getMessage();
+						throw new IllegalStateException(msg);
+					}
+				}
+			}
+		}
 	}
 	
 	public static void addModernFunctions(Workbook wb)
@@ -214,6 +267,12 @@ public final class ModernFunctions
 
 	@Retention(RetentionPolicy.RUNTIME)
 	private @interface ExcelFunction
+	{
+		String value();
+	}
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	private @interface ATPFunction
 	{
 		String value();
 	}
