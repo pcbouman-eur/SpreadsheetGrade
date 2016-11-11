@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
@@ -469,6 +470,33 @@ public class XMLTest
 			throw new IllegalStateException("This XMLTest does not trace errors");
 		}
 		return errorTrace.toString();
+	}
+	
+	public TestResults makeReport()
+	{
+		TestResults tr = new TestResults();
+		for (Entry<String,Integer> e : testSucceed.entrySet())
+		{
+			tr.addPass(e.getKey(),e.getValue());
+		}
+		for (Entry<String,Integer> e : testFailed.entrySet())
+		{
+			tr.addPass(e.getKey(), e.getValue());
+		}
+		for (Entry<String,Integer> e : errors.entrySet())
+		{
+			tr.addError(e.getKey(), e.getValue());
+		}
+		for (Entry<String,Integer> e : notImpl.entrySet())
+		{
+			tr.addError("Unsupported function(s) '"+e.getKey()
+				+"' found. Please let your TA check your work. ", e.getValue());
+		}
+		for (Entry<String,Integer> e : missing.entrySet())
+		{
+			tr.addError("Unexpected empty cell(s) found: "+e.getKey(), e.getValue());
+		}
+		return tr;
 	}
 	
 	public String makeReport(boolean json)
