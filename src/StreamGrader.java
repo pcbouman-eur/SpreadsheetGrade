@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import javax.xml.bind.JAXBException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.exceptions.InvalidOperationException;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class StreamGrader
@@ -113,7 +114,7 @@ public class StreamGrader
 			test.testAll(refBook, testBook);
 			tr = test.makeReport();
 		}
-		catch (InvalidFormatException ife)
+		catch (InvalidFormatException|InvalidOperationException ife)
 		{
 			tr = new TestResults();
 			tr.addError("Error reading submitted file. Make sure you submit an Excel file.");
