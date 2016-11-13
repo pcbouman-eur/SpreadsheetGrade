@@ -1,5 +1,6 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +51,11 @@ public class StreamGrader
 			{
 				round(jobID);
 			}
-			catch (InvalidFormatException | IOException | JAXBException e)
+			catch (EOFException e)
+			{
+				System.exit(0);
+			}
+			catch (IOException | JAXBException e)
 			{
 				TestResults tr = new TestResults();
 				tr.addError("Unexpected error. Please contact us. (Error details: "+e.getMessage()+")");
@@ -64,12 +69,11 @@ public class StreamGrader
 				{
 					ex.printStackTrace();
 				}
-				return;
 			}
 		}
 	}
 	
-	public void round(long jobID) throws IOException, JAXBException, InvalidFormatException
+	public void round(long jobID) throws IOException, JAXBException
 	{		
 		int numBytes = input.readInt();
 		byte [] xmlData = new byte[numBytes];
@@ -101,14 +105,22 @@ public class StreamGrader
 		Timeout to = new Timeout(jobID);
 		Thread toThread = new Thread(to);
 		toThread.start();
+		
+		TestResults tr;
 		try (XSSFWorkbook refBook = new XSSFWorkbook(tmpRef);
 				XSSFWorkbook testBook = new XSSFWorkbook(tmpTest))
 		{
 			test.testAll(refBook, testBook);
+			tr = test.makeReport();
+		}
+		catch (InvalidFormatException ife)
+		{
+			tr = new TestResults();
+			tr.addError("Error reading submitted file. Make sure you submit an Excel file.");
 		}
 		to.deactivate();
 		
-		TestResults tr = test.makeReport();
+		
 		
 		tmpXml.delete();
 		tmpRef.delete();
