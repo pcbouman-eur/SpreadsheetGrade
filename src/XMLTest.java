@@ -481,7 +481,7 @@ public class XMLTest
 		}
 		for (Entry<String,Integer> e : testFailed.entrySet())
 		{
-			tr.addPass(e.getKey(), e.getValue());
+			tr.addFail(e.getKey(), e.getValue());
 		}
 		for (Entry<String,Integer> e : errors.entrySet())
 		{
