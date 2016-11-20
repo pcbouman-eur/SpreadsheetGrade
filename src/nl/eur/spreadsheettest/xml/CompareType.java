@@ -8,8 +8,6 @@
 
 package nl.eur.spreadsheettest.xml;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -18,23 +16,20 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for testcaseType complex type.
+ * <p>Java class for compareType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="testcaseType">
+ * &lt;complexType name="compareType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="description" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="input" type="{assignment.xsd}inputType" maxOccurs="unbounded"/>
- *         &lt;element name="output" type="{assignment.xsd}outputType" maxOccurs="unbounded"/>
+ *         &lt;element name="range" type="{assignment.xsd}rangeType"/>
  *       &lt;/sequence>
  *       &lt;attribute name="sheetName" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="eps" type="{http://www.w3.org/2001/XMLSchema}double" default="10e-8" />
- *       &lt;attribute name="randomCombinations" type="{http://www.w3.org/2001/XMLSchema}int" default="256" />
- *       &lt;attribute name="randomDraws" type="{http://www.w3.org/2001/XMLSchema}int" default="256" />
  *       &lt;attribute name="textStrict" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -44,27 +39,20 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "testcaseType", propOrder = {
+@XmlType(name = "compareType", propOrder = {
     "description",
-    "input",
-    "output"
+    "range"
 })
-public class TestcaseType {
+public class CompareType {
 
     @XmlElement(required = true)
     protected String description;
     @XmlElement(required = true)
-    protected List<InputType> input;
-    @XmlElement(required = true)
-    protected List<OutputType> output;
+    protected String range;
     @XmlAttribute(name = "sheetName")
     protected String sheetName;
     @XmlAttribute(name = "eps")
     protected Double eps;
-    @XmlAttribute(name = "randomCombinations")
-    protected Integer randomCombinations;
-    @XmlAttribute(name = "randomDraws")
-    protected Integer randomDraws;
     @XmlAttribute(name = "textStrict")
     protected Boolean textStrict;
 
@@ -93,61 +81,27 @@ public class TestcaseType {
     }
 
     /**
-     * Gets the value of the input property.
+     * Gets the value of the range property.
      * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the input property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getInput().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link InputType }
-     * 
-     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public List<InputType> getInput() {
-        if (input == null) {
-            input = new ArrayList<InputType>();
-        }
-        return this.input;
+    public String getRange() {
+        return range;
     }
 
     /**
-     * Gets the value of the output property.
+     * Sets the value of the range property.
      * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the output property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getOutput().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link OutputType }
-     * 
-     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public List<OutputType> getOutput() {
-        if (output == null) {
-            output = new ArrayList<OutputType>();
-        }
-        return this.output;
+    public void setRange(String value) {
+        this.range = value;
     }
 
     /**
@@ -200,62 +154,6 @@ public class TestcaseType {
      */
     public void setEps(Double value) {
         this.eps = value;
-    }
-
-    /**
-     * Gets the value of the randomCombinations property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    public int getRandomCombinations() {
-        if (randomCombinations == null) {
-            return  256;
-        } else {
-            return randomCombinations;
-        }
-    }
-
-    /**
-     * Sets the value of the randomCombinations property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    public void setRandomCombinations(Integer value) {
-        this.randomCombinations = value;
-    }
-
-    /**
-     * Gets the value of the randomDraws property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    public int getRandomDraws() {
-        if (randomDraws == null) {
-            return  256;
-        } else {
-            return randomDraws;
-        }
-    }
-
-    /**
-     * Sets the value of the randomDraws property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    public void setRandomDraws(Integer value) {
-        this.randomDraws = value;
     }
 
     /**
