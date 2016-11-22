@@ -33,6 +33,8 @@ import org.apache.poi.xssf.usermodel.XSSFEvaluationWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import nl.eur.spreadsheettest.xml.AbsoluteType;
+import nl.eur.spreadsheettest.xml.CompareType;
+import nl.eur.spreadsheettest.xml.ComparisonsType;
 import nl.eur.spreadsheettest.xml.Exercise;
 import nl.eur.spreadsheettest.xml.FunctionConstraint;
 import nl.eur.spreadsheettest.xml.InputType;
@@ -113,8 +115,96 @@ public class XMLTest
 	{
 		ModernFunctions.addModernFunctions(ref);
 		ModernFunctions.addModernFunctions(test);
-		testRanges(ref, test);
+		testComparisons(ref, test);
 		testStyle(test);
+		testRanges(ref, test);
+	}
+	
+	public void testComparisons(XSSFWorkbook ref, XSSFWorkbook test)
+	{
+		if (exercise.getComparisons() == null || exercise.getComparisons().getComparison() == null)
+		{
+			return;
+		}
+		outerLoop:
+		for (CompareType comp : exercise.getComparisons().getComparison())
+		{
+			String descr = comp.getDescription().trim().replaceAll("\n", " ");
+			String sn = comp.getSheetName();
+			Range range = new Range(comp.getRange().trim().replaceAll("\n", " "));
+			Sheet refSheet, testSheet;
+			
+			if (sn != null)
+			{
+				refSheet = ref.getSheet(sn);
+				testSheet = test.getSheet(sn);
+				if (refSheet == null)
+				{
+					reportError("There is a problem with the assignment: the sheet with name '"+ sn
+							+"' could not be found in the reference solution. Please contact us!");
+					continue;
+				}
+				if (testSheet == null)
+				{
+					reportError("We could not find a sheet with name '"+sn+"' in your solution."
+							+ " Make sure you have a sheet with that exact name.");
+					continue;
+				}
+			}
+			else
+			{
+				refSheet = ref.getSheetAt(0);
+				testSheet = test.getSheetAt(0);
+			}
+			
+			for (CellReference cr : range)
+			{
+				int row = cr.getRow();
+				int col = cr.getCol();
+				if (refSheet.getRow(row) == null || refSheet.getRow(row).getCell(col) == null)
+				{
+					reportError("There is a problem with the assignment: cell "+cr.formatAsString()
+							+ " in sheet '"+ refSheet.getSheetName() + "' could not be found in the "
+							+ "reference solution. Please contact us!");
+					continue outerLoop;
+				}
+				if (testSheet.getRow(row) == null || testSheet.getRow(row).getCell(col) == null)
+				{
+					reportError("We could not find cell "+cr.formatAsString()+" within sheet '"+sn
+							+"' in your solution. Make sure you follow the assignment and do "
+							+" something with this cell.");
+					continue outerLoop;
+				}
+				
+				Cell refCell = refSheet.getRow(row).getCell(col);
+				Cell testCell = testSheet.getRow(row).getCell(col);
+				CompareResult res = compare(refCell, testCell, comp.getEps(), comp.isTextStrict());
+				if (res == CompareResult.UNSUPPORTED_TYPE)
+				{
+					reportError("We could not compare the value in cell "+cr.formatAsString()+" within "
+							+ "sheet '"+sn+"' to the reference because it holds an unexpected type of "
+							+ "data. Please contact us. ");
+					continue outerLoop;
+				}
+				if (res == CompareResult.DIFFERENT_TYPES)
+				{
+					if (refCell.getCellType() == Cell.CELL_TYPE_FORMULA)
+					{
+						reportTest("The cell "+cr.formatAsString()+" within sheet '"+sn+"' of your solution "+
+								"should be computed using a formula, but it holds static data. Make sure you "+
+								"use a formula where appropiate.", false);						
+					}
+					else
+					{
+						reportTest("The cell "+cr.formatAsString()+" within sheet '"+sn+"' of your solution "+
+									"holds the wrong type of data. Check the assignment to see what type of "+
+								    "should be stored in the cell. ", false);
+					}
+					continue outerLoop;
+				}
+				reportTest(descr, res == CompareResult.OKAY);
+			}
+		}
 	}
 	
 	public void testStyle(XSSFWorkbook test)
@@ -254,10 +344,14 @@ public class XMLTest
 			throw new IllegalStateException("Cannot iterate over tests if no assignment file has been loaded.");
 		}
 		
+		if (exercise.getTestcases() == null)
+		{
+			return;
+		}
+		
 		Random ran = new Random(seed);
 		report = "%"+exercise.getReportDigits()+"d";
 		seed = exercise.getSeed();
-		
 		
 		outerLoop:
 		for (TestcaseType tc : exercise.getTestcases().getTestcase())
@@ -655,5 +749,74 @@ public class XMLTest
 		e.printStackTrace(pw);
 		pw.flush();
 		return bos.toString();
+	}
+	
+	public static CompareResult compare(Cell ref, Cell test, double eps, boolean textStrict)
+	{
+		if (ref.getCellType() != test.getCellType())
+		{
+			int ct = ref.getCellType();
+			int ct2 = test.getCellType();
+			return CompareResult.DIFFERENT_TYPES;
+		}
+		int ct = ref.getCellType();
+		if (ct == Cell.CELL_TYPE_FORMULA)
+		{
+			if (ref.getCachedFormulaResultType() != test.getCachedFormulaResultType())
+			{
+				return CompareResult.DIFFERENT_TYPES;
+			}
+			ct = ref.getCachedFormulaResultType();
+		}
+		
+		if (ct == Cell.CELL_TYPE_STRING)
+		{
+			String t1 = ref.getStringCellValue();
+			String t2 = test.getStringCellValue();
+			if (textStrict)
+			{
+				return t1.equals(t2) ? CompareResult.OKAY : CompareResult.DIFFERENT_VALUES;
+			}
+			else
+			{
+				return t1.trim().toLowerCase().equals(t2.trim().toLowerCase()) ?
+						CompareResult.OKAY : CompareResult.DIFFERENT_VALUES;
+			}
+		}
+		if (ct == Cell.CELL_TYPE_NUMERIC)
+		{
+			double d1 = ref.getNumericCellValue();
+			double d2 = test.getNumericCellValue();
+			if (Math.abs(d1 - d2) <= eps)
+			{
+				return CompareResult.OKAY;
+			}
+			else
+			{
+				return CompareResult.DIFFERENT_VALUES;
+			}
+		}
+		if (ct == Cell.CELL_TYPE_BOOLEAN)
+		{
+			if (ref.getBooleanCellValue() == test.getBooleanCellValue())
+			{
+				return CompareResult.OKAY;
+			}
+			return CompareResult.DIFFERENT_VALUES;
+		}
+		if (ct == Cell.CELL_TYPE_BLANK)
+		{
+			return CompareResult.OKAY;
+		}
+		
+		return CompareResult.UNSUPPORTED_TYPE;
+	}
+	
+	public static enum CompareResult
+	{
+		OKAY,
+		DIFFERENT_VALUES,
+		DIFFERENT_TYPES,
+		UNSUPPORTED_TYPE
 	}
 }
