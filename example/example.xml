@@ -1,0 +1,46 @@
+<exercise xmlns="assignment.xsd" seed="54321" reportDigits="3">
+	<shorttitle>interest</shorttitle>
+	<title>Interesting Interests</title>
+	<category>Week 1</category>
+	<instructions>
+	Create a sheet with an interest factor in cell B2, a starting budget in cell B3 and a number of periods in cell B4. You sheet shout compute the correct end budget after the number of periods in cell B6. You should also compute the profit made in this period in cell B7. Note that if the interest factor is smaller than 1, you can have negative profits and that your sheet should also work for negative starting budgets (e.g. in case of a loan).
+	</instructions>
+	<testcases maxCellsFullTest="5">
+		<testcase randomDraws="256" randomCombinations="256">
+			<description>
+			Computation of the ending budget
+			</description>
+			<input range="B2" lb="0.5" ub="2" precision="0.001"/>
+			<input range="B3" lb="-10000" ub="10000" />
+			<input range="B4" lb="1" ub="20" />
+			<output range="B6" />
+		</testcase>
+		<testcase randomDraws="256" randomCombinations="256">
+			<description>
+			Computation of the profit
+			</description>
+			<input range="B2" lb="0.5" ub="2" />
+			<input range="B3" lb="-10000" ub="10000" />
+			<input range="B4" lb="1" ub="20" />
+			<output range="B7" />
+		</testcase>
+		<testcase randomDraws="256" randomCombinations="256">
+			<description>
+			Can you deal with zero periods?
+			</description>
+			<input range="B2" lb="0.5" ub="2" />
+			<input range="B3" lb="-10000" ub="10000" />
+			<input range="B4" lb="0" ub="0" />
+			<output range="B6:B7" />
+		</testcase>
+	</testcases>
+	<styles>
+		<style>
+			<absolute range="B3:B4" />
+			<absolute row="2" />
+			<absolute col="C" />
+			<required function="MAX" />
+			<forbidden function="MIN" />
+		</style>
+	</styles>
+</exercise>

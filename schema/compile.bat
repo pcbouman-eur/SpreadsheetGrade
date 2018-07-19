@@ -1,0 +1,1 @@
+xjc -p nl.eur.spreadsheettest.xml spreadsheettest.xsd
