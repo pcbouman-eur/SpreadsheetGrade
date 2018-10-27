@@ -1,3 +1,4 @@
+package nl.eur.ese.spreadsheettest;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -10,9 +11,9 @@ import org.apache.poi.ss.formula.ptg.AbstractFunctionPtg;
 import org.apache.poi.ss.formula.ptg.AttrPtg;
 import org.apache.poi.ss.formula.ptg.NamePtg;
 import org.apache.poi.ss.formula.ptg.Ptg;
-import org.apache.poi.ss.formula.ptg.RefPtg;
 import org.apache.poi.ss.formula.ptg.RefPtgBase;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellReference;
@@ -50,7 +51,7 @@ public class NamedRefTest
 			{
 				for (Cell c : r)
 				{
-					if (c.getCellType() == Cell.CELL_TYPE_FORMULA)
+					if (c.getCellType() == CellType.FORMULA)
 					{
 						String formula = c.getCellFormula();
 						Ptg[] tokens = FormulaParser.parse(formula, ewb, FormulaType.CELL, ref.getSheetIndex(s));

@@ -1,3 +1,4 @@
+package nl.eur.ese.spreadsheettest;
 import org.apache.poi.ss.formula.atp.AnalysisToolPak;
 import org.apache.poi.ss.formula.eval.FunctionEval;
 

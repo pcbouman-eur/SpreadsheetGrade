@@ -1,7 +1,9 @@
+package nl.eur.ese.spreadsheettest;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
@@ -109,44 +111,44 @@ public class ExcelTest
 			throw new NoCellException(cellRef, cell == null);
 		}
 		
-		int type = cell.getCellType();
+		CellType type = cell.getCellType();
 		
-		if (type == Cell.CELL_TYPE_BOOLEAN)
+		if (type == CellType.BOOLEAN)
 		{
 			return CellValue.valueOf(cell.getBooleanCellValue());
 		}
-		else if (type == Cell.CELL_TYPE_NUMERIC)
+		else if (type == CellType.NUMERIC)
 		{
 			return new CellValue(cell.getNumericCellValue());
 		}
-		else if (type == Cell.CELL_TYPE_STRING)
+		else if (type == CellType.STRING)
 		{
 			return new CellValue(cell.getStringCellValue());
 		}
-		else if (type == Cell.CELL_TYPE_ERROR)
+		else if (type == CellType.ERROR)
 		{
 			return CellValue.getError(cell.getErrorCellValue());
 		}
-		else if (type == Cell.CELL_TYPE_FORMULA)
+		else if (type == CellType.FORMULA)
 		{
 			// compare evaluated values!!
 			CellValue val = fe.evaluate(cell);
 			
-			int valType = val.getCellType();
+			CellType valType = val.getCellType();
 			
-			if (valType == Cell.CELL_TYPE_BOOLEAN)
+			if (valType == CellType.BOOLEAN)
 			{
 				return CellValue.valueOf(val.getBooleanValue());
 			}
-			else if (valType == Cell.CELL_TYPE_NUMERIC)
+			else if (valType == CellType.NUMERIC)
 			{
 				return new CellValue(val.getNumberValue());
 			}
-			else if (valType == Cell.CELL_TYPE_STRING)
+			else if (valType == CellType.STRING)
 			{
 				return new CellValue(val.getStringValue());
 			}
-			else if (valType == Cell.CELL_TYPE_ERROR)
+			else if (valType == CellType.ERROR)
 			{
 				return CellValue.getError(val.getErrorValue());
 			}
@@ -170,8 +172,8 @@ public class ExcelTest
 			return refVal == testVal;
 		}
 		
-		int refType = refVal.getCellType();
-		int testType = testVal.getCellType();
+		CellType refType = refVal.getCellType();
+		CellType testType = testVal.getCellType();
 		
 		if (refType != testType)
 		{
@@ -179,15 +181,15 @@ public class ExcelTest
 		}
 		
 
-		if (refType == Cell.CELL_TYPE_BOOLEAN)
+		if (refType == CellType.BOOLEAN)
 		{
 			return refVal.getBooleanValue() == testVal.getBooleanValue();
 		}
-		else if (refType == Cell.CELL_TYPE_NUMERIC)
+		else if (refType == CellType.NUMERIC)
 		{
 			return Math.abs(refVal.getNumberValue() - testVal.getNumberValue()) <= eps;
 		}
-		else if (refType == Cell.CELL_TYPE_STRING)
+		else if (refType == CellType.STRING)
 		{
 			if (strict)
 			{
@@ -208,35 +210,35 @@ public class ExcelTest
 		Cell refCell = reference.getRow(cell.getRow()).getCell(cell.getCol());
 		Cell testCell = test.getRow(cell.getRow()).getCell(cell.getCol());
 		
-		int type = refCell.getCellType();
+		CellType type = refCell.getCellType();
 		
-		if (type == Cell.CELL_TYPE_BLANK)
+		if (type == CellType.BLANK)
 		{
-			testCell.setCellType(Cell.CELL_TYPE_BLANK);
+			testCell.setCellType(CellType.BLANK);
 		}
-		else if (type == Cell.CELL_TYPE_BOOLEAN)
+		else if (type == CellType.BOOLEAN)
 		{
-			testCell.setCellType(Cell.CELL_TYPE_BOOLEAN);
+			testCell.setCellType(CellType.BOOLEAN);
 			testCell.setCellValue(refCell.getBooleanCellValue());
 		}
-		else if (type == Cell.CELL_TYPE_ERROR)
+		else if (type == CellType.ERROR)
 		{
-			testCell.setCellType(Cell.CELL_TYPE_ERROR);
+			testCell.setCellType(CellType.ERROR);
 			testCell.setCellErrorValue(refCell.getErrorCellValue());
 		}
-		else if (type == Cell.CELL_TYPE_FORMULA)
+		else if (type == CellType.FORMULA)
 		{
-			testCell.setCellType(Cell.CELL_TYPE_FORMULA);
+			testCell.setCellType(CellType.FORMULA);
 			testCell.setCellFormula(refCell.getCellFormula());
 		}
-		else if (type == Cell.CELL_TYPE_NUMERIC)
+		else if (type == CellType.NUMERIC)
 		{
-			testCell.setCellType(Cell.CELL_TYPE_NUMERIC);
+			testCell.setCellType(CellType.NUMERIC);
 			testCell.setCellValue(refCell.getNumericCellValue());
 		}
-		else if (type == Cell.CELL_TYPE_STRING)
+		else if (type == CellType.STRING)
 		{
-			testCell.setCellType(Cell.CELL_TYPE_STRING);
+			testCell.setCellType(CellType.STRING);
 			testCell.setCellValue(refCell.getStringCellValue());
 		}
 	}
