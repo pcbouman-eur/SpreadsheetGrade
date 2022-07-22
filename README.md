@@ -22,14 +22,16 @@ packages in the `target` directory that can be used to perform the assessment in
   
 ## Quick demo
 
-Assuming a modern enough version of Java (>= 8) and Maven are installed, the following steps can be used
-to test this:
+Assuming a modern enough version of Java (>= 8) and Maven are installed, the following command can be
+used to compile the project and obtain the runnable jar files mentioned above.
 
 ```
 mvn package
 ```
 
-A demo assignment can be found in `/example`. 
+A test case for demonstration purposes can be found in `/example`, which contains an assignment
+specification `example.xml`, a reference spreadsheet `reference.xlsx` and a spreadsheet that contains a
+partially correct and partially incorrect solution attempt `handin.xlsx`. 
 
 ### Running the GUI
 
