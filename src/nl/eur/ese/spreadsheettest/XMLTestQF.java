@@ -2,6 +2,8 @@ package nl.eur.ese.spreadsheettest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -48,6 +50,9 @@ public class XMLTestQF extends XMLTestBase implements Callable<Integer> {
 	@CommandLine.Option(names={"-c", "--clean"}, description = "Writes a new file even if the .json output already exists")
 	private boolean clean;
 
+	@CommandLine.Option(names={"-d", "--dense"}, description = "Writes a dense, non-indented json representation")
+	private boolean dense;
+
 	private XMLTestQF()
 	{
 		super();
@@ -72,6 +77,9 @@ public class XMLTestQF extends XMLTestBase implements Callable<Integer> {
 		}
 
 		ObjectMapper mapper = new ObjectMapper();
+		if (!dense) {
+			mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		}
 		Map<String,Object> result = new TreeMap<>();
 		List<String> report = makeQFReport();
 		result.put("feedback", report);

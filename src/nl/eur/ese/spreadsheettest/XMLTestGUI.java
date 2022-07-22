@@ -4,10 +4,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -164,7 +161,7 @@ public class XMLTestGUI extends JFrame implements ActionListener
 				return;
 			}
 			
-			try ( XSSFWorkbook refBook = new XSSFWorkbook(refFile); XSSFWorkbook testBook = new XSSFWorkbook(testFile) )
+			try (XSSFWorkbook refBook = new XSSFWorkbook(new FileInputStream(refFile)); XSSFWorkbook testBook = new XSSFWorkbook(new FileInputStream(testFile)) )
 			{
 				try
 				{
@@ -194,11 +191,6 @@ public class XMLTestGUI extends JFrame implements ActionListener
 				
 				log.setText(sb.toString());
 				
-			} catch (InvalidFormatException e)
-			{
-				JOptionPane.showMessageDialog(this, "The format of the Excel files is invalid. Please view the log.");
-				log.setText("The format of the Excel files is invalid. \n\n"+getStackTrace(e));
-				return;
 			}
 			catch (IOException e)
 			{

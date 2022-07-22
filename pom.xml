@@ -69,13 +69,13 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>xmltest-qf</id>
+						<id>checkqf</id>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
 						</goals>
 						<configuration>
-							<finalName>XMLTestQF</finalName>
+							<finalName>checkqf</finalName>
 							<archive>
 								<manifest>
 									<mainClass>nl.eur.ese.spreadsheettest.XMLTestQF</mainClass>
