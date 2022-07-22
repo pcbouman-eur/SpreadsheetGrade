@@ -31,8 +31,8 @@ public class TestResults
 	
 	private void inc(Map<String,Integer> map, String msg, int count)
 	{
-		map.merge(msg, count, (i,j) -> i+j);
-		total.merge(msg, count, (i,j) -> i+j);
+		map.merge(msg, count, Integer::sum);
+		total.merge(msg, count, Integer::sum);
 	}
 	
 	public void test(String msg, boolean b)

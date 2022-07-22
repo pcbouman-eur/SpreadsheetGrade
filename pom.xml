@@ -10,6 +10,8 @@
 		<commons-math.version>3.6</commons-math.version>
 		<jaxb.version>2.3.1</jaxb.version>
 		<log4j.version>2.18.0</log4j.version>
+		<picocli.version>4.6.3</picocli.version>
+		<jackson.version>2.13.2</jackson.version>
 
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -62,6 +64,21 @@
 							<archive>
 								<manifest>
 									<mainClass>nl.eur.ese.spreadsheettest.XMLTest</mainClass>
+								</manifest>
+							</archive>
+						</configuration>
+					</execution>
+					<execution>
+						<id>xmltest-qf</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>XMLTestQF</finalName>
+							<archive>
+								<manifest>
+									<mainClass>nl.eur.ese.spreadsheettest.XMLTestQF</mainClass>
 								</manifest>
 							</archive>
 						</configuration>
@@ -126,6 +143,16 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 			<version>${log4j.version}</version>
-		</dependency>		
+		</dependency>
+		<dependency>
+			<groupId>info.picocli</groupId>
+			<artifactId>picocli</artifactId>
+			<version>${picocli.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
 	</dependencies>
 </project>
