@@ -41,9 +41,8 @@ public class NamedRefTest
 			
 			Sheet s = ref.getSheetAt(0);
 			
-			for (int k=0; k < ref.getNumberOfNames(); k++)
+			for (XSSFName name : ref.getAllNames())
 			{
-				XSSFName name = ref.getNameAt(k);
 				System.out.println(name.getNameName() +" -> "+name.getRefersToFormula());
 			}
 			
